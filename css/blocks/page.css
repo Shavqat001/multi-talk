@@ -1,0 +1,41 @@
+.page {
+    font-family: 'Bayon', sans-serif;
+    overflow: hidden;
+}
+
+.page__main {
+    display: flex;
+}
+
+.page__theme {
+    outline: none;
+    width: 40px;
+    height: 20px;
+    border-radius: 50px;
+    background-color: #fff;
+    margin-right: 10px;
+    margin-left: 15px;
+    appearance: none;
+    position: relative;
+}
+
+.page__theme:checked {
+    background-color: var(--dark-blue);
+}
+
+.page__theme::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: yellowgreen;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    transition: 200ms;
+    left: 0;
+}
+
+.page__theme:checked::after {
+    border: 1px solid #333;
+    left: 18px;
+}
