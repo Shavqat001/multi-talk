@@ -58,8 +58,7 @@
     position: relative;
 }
 
-.users__item--light .users__name,
-.users__item--light .users__text {
+.users__item--light :is(.users__name, .users__text) {
     color: #333;
 }
 
