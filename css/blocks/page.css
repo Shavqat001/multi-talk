@@ -19,10 +19,6 @@
     position: relative;
 }
 
-.page__theme:checked {
-    background-color: var(--dark-blue);
-}
-
 .page__theme::after {
     content: '';
     width: 20px;
@@ -33,9 +29,14 @@
     border-radius: 50%;
     transition: 200ms;
     left: 0;
+    
 }
 
-.page__theme:checked::after {
+.page__theme--light {
+    background-color: var(--dark-blue);
+}
+
+.page__theme--light::after {
     border: 1px solid #333;
     left: 18px;
 }
