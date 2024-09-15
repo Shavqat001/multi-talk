@@ -1,22 +1,36 @@
 require('dotenv').config();
-const express = require('express'); 
+const express = require('express');
 const cors = require('cors');
 const { Server } = require('ws');
 const { Telegraf } = require('telegraf');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const mysql = require('mysql2');
+const path = require('path');
+const authRoutes = require('./public/js/auth');
 
-const app = express(); 
+const app = express();
 const port = 8082;
 
-app.use(cors({
-    origin: 'http://127.0.0.1:5500',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+    origin: ['http://127.0.0.1:5500', 'http://localhost:8082'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
+}));
+
+app.use('/auth', authRoutes);
+
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'authorization.html'));
+});
+
+app.get('/index', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'index.html'));
+});
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -176,7 +190,7 @@ wss.on('connection', (ws) => {
 
 app.get('/api/clients', (req, res) => {
     const query = 'SELECT DISTINCT phone_number, sender_name, platform, sender_profile_pic FROM messages';
-    
+
     connection.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching clients:', err);
