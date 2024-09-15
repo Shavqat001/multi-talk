@@ -1,6 +1,6 @@
 require('dotenv').config();
-const express = require('express');  // Добавляем Express для обработки маршрутов
-const cors = require('cors');  // Подключаем cors
+const express = require('express'); 
+const cors = require('cors');
 const { Server } = require('ws');
 const { Telegraf } = require('telegraf');
 const { Client, LocalAuth } = require('whatsapp-web.js');
@@ -16,9 +16,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json());  // Для работы с JSON
+app.use(express.json());
 
-// Настройка подключения к MySQL
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -40,43 +39,44 @@ bot.start((msg) => {
     msg.reply(`Привет!\n\nЧем я могу вам помочь?`);
 });
 
+// Telegram Bot
 bot.on('text', async (ctx) => {
     const chatId = ctx.chat.id;
     const name = ctx.chat.first_name || 'Telegram User';
+    const phoneNumber = chatId.toString();
 
-    let profilePicUrl = './img/avatar.jpg';  // Дефолтная картинка
+    let profilePicUrl = './img/avatar.jpg';
     try {
         const photos = await bot.telegram.getUserProfilePhotos(chatId);
         if (photos.total_count > 0) {
             const fileId = photos.photos[0][0].file_id;
             const fileLink = await bot.telegram.getFileLink(fileId);
-            profilePicUrl = fileLink.href;  // Извлекаем строку href из объекта URL
+            profilePicUrl = fileLink.href;
         }
     } catch (error) {
         console.error('Error getting Telegram profile picture:', error);
     }
 
-    // Отправляем сообщение через WebSocket и сохраняем в базу данных
     wss.clients.forEach(client => {
         client.send(JSON.stringify({
             platform: 'telegram',
-            chatId: chatId,
+            phoneNumber: phoneNumber,
             name: name,
             message: ctx.message.text,
-            profilePic: profilePicUrl  // Передаем строку URL
+            profilePic: profilePicUrl
         }));
     });
 
-    // Сохраняем сообщение в базу данных
     const query = `
-        INSERT INTO messages (chat_id, platform, sender_name, sender_profile_pic, message_text, message_type)
+        INSERT INTO messages (phone_number, platform, sender_name, sender_profile_pic, message_text, message_type)
         VALUES (?, ?, ?, ?, ?, ?)
     `;
-    connection.query(query, [chatId, 'telegram', name, profilePicUrl, ctx.message.text, 'client'], (err, result) => {
+    connection.query(query, [phoneNumber, 'telegram', name, profilePicUrl, ctx.message.text, 'client'], (err, result) => {
         if (err) throw err;
         console.log('Message from Telegram saved to DB');
     });
 });
+
 
 bot.launch().then(() => console.log('Telegram bot launched successfully'))
     .catch(err => console.error('Failed to launch Telegram bot:', err));
@@ -94,36 +94,38 @@ whatsappClient.on('ready', () => {
     console.log('WhatsApp client is ready');
 });
 
+// WhatsApp Bot
 whatsappClient.on('message', async message => {
     const contact = await whatsappClient.getContactById(message.from);
     const displayName = contact.pushname || contact.name || 'WhatsApp User';
 
-    let profilePicUrl = './img/avatar.jpg';  // Дефолтная картинка
+    // Извлекаем реальный номер телефона
+    const realPhoneNumber = contact.number || message.from.replace('@c.us', '');
+
+    let profilePicUrl = './img/avatar.jpg';
     try {
-        profilePicUrl = await contact.getProfilePicUrl();  // Получаем строку URL
+        profilePicUrl = await contact.getProfilePicUrl();
     } catch (err) {
         console.error('Error getting WhatsApp profile picture:', err);
     }
 
-    // Отправляем сообщение через WebSocket и сохраняем в базу данных
     wss.clients.forEach(function each(client) {
         if (client.readyState === client.OPEN) {
             client.send(JSON.stringify({
                 platform: 'whatsapp',
-                message: message.body,
-                chatId: message.from,
+                phoneNumber: realPhoneNumber, // Используем реальный номер телефона
                 name: displayName,
-                profilePic: profilePicUrl  // Передаем строку URL
+                message: message.body,
+                profilePic: profilePicUrl
             }));
         }
     });
 
-    // Сохраняем сообщение в базу данных
     const query = `
-        INSERT INTO messages (chat_id, platform, sender_name, sender_profile_pic, message_text, message_type)
+        INSERT INTO messages (phone_number, platform, sender_name, sender_profile_pic, message_text, message_type)
         VALUES (?, ?, ?, ?, ?, ?)
     `;
-    connection.query(query, [message.from, 'whatsapp', displayName, profilePicUrl, message.body, 'client'], (err, result) => {
+    connection.query(query, [realPhoneNumber, 'whatsapp', displayName, profilePicUrl, message.body, 'client'], (err, result) => {
         if (err) throw err;
         console.log('Message from WhatsApp saved to DB');
     });
@@ -138,41 +140,81 @@ wss.on('connection', (ws) => {
     ws.on('message', async (msg) => {
         const data = JSON.parse(msg);
         const inputText = data.inputText || '';
-        const chatId = data.chatId;
+        const phoneNumber = data.phoneNumber;
 
-        if (data.platform === 'telegram') {
-            bot.telegram.sendMessage(chatId, inputText)
-                .then(() => console.log('Message sent to Telegram'))
-                .catch(err => console.error('Failed to send message to Telegram:', err));
-        }
+        // Извлекаем информацию о пользователе из базы данных
+        connection.query('SELECT * FROM messages WHERE phone_number = ? LIMIT 1', [phoneNumber], (err, results) => {
+            if (err) {
+                console.error('Error fetching user info from DB:', err);
+                return;
+            }
 
-        if (data.platform === 'whatsapp') {
+            // Если пользователь найден, берем его данные
+            const userProfilePic = results.length > 0 ? results[0].sender_profile_pic : './img/avatar.jpg';
+
+            // Отправка сообщения обратно всем клиентам
             wss.clients.forEach(function each(client) {
-                if (client !== ws && client.readyState === client.OPEN) {
+                if (client.readyState === client.OPEN) {
                     client.send(JSON.stringify({
-                        platform: 'whatsapp',
+                        platform: data.platform,
                         message: inputText,
-                        chatId: chatId
+                        phoneNumber: phoneNumber,
+                        from: 'operator', // Указываем, что это сообщение от оператора
+                        profilePic: userProfilePic // Используем профильное изображение из базы данных или дефолтное
                     }));
                 }
             });
 
-            whatsappClient.sendMessage(chatId, inputText)
-                .then(() => console.log('Message sent to WhatsApp'))
-                .catch(err => console.error('Failed to send message to WhatsApp'));
+            // Отправка сообщения в социальную сеть
+            if (data.platform === 'telegram') {
+                bot.telegram.sendMessage(phoneNumber, inputText)
+                    .then(() => console.log('Message sent to Telegram'))
+                    .catch(err => console.error('Failed to send message to Telegram:', err));
+            } else if (data.platform === 'whatsapp') {
+                whatsappClient.sendMessage(phoneNumber + '@c.us', inputText)
+                    .then(() => console.log('Message sent to WhatsApp'))
+                    .catch(err => console.error('Failed to send message to WhatsApp:', err));
+            }
+
+            // Сохраняем сообщение в базе данных
+            const query = `
+                INSERT INTO messages (phone_number, platform, sender_name, sender_profile_pic, message_text, message_type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            connection.query(query, [phoneNumber, data.platform, 'Operator', userProfilePic, inputText, 'operator'], (err, result) => {
+                if (err) throw err;
+                console.log('Message sent by operator saved to DB');
+            });
+        });
+    });
+});
+
+app.get('/api/clients', (req, res) => {
+    const query = 'SELECT DISTINCT phone_number, sender_name, platform, sender_profile_pic FROM messages';
+    
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching clients:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log('Клиенты из базы данных:', results);
+            res.json(results);
         }
     });
 });
 
-// Маршрут для получения истории сообщений по chatId
-app.get('/api/messages/:chatId', (req, res) => {
-    const chatId = req.params.chatId;
-    console.log(`Fetching messages for chatId: ${chatId}`);  // Логирование
+app.get('/api/messages/:phoneNumber', (req, res) => {
+    const phoneNumber = req.params.phoneNumber;
+    console.log(`Fetching messages for phoneNumber: ${phoneNumber}`);  // Логирование
 
-    const query = 'SELECT * FROM messages WHERE chat_id = ? ORDER BY timestamp ASC';
-    connection.query(query, [chatId], (err, results) => {
-        if (err) throw err;
-        res.json(results);  // Отправляем сообщения в формате JSON
+    const query = 'SELECT * FROM messages WHERE phone_number = ? ORDER BY timestamp ASC';
+    connection.query(query, [phoneNumber], (err, results) => {
+        if (err) {
+            console.error('Error fetching messages:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json(results);  // Отправляем сообщения в формате JSON
+        }
     });
 });
 
