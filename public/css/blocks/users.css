@@ -1,11 +1,12 @@
 .users {
-    min-width: 260px;
+    min-width: 290px;
     height: 100vh;
     background-color: var(--dark-blue);
     z-index: 1;
     resize: horizontal;
     overflow-x: auto;
     box-sizing: border-box;
+    position: relative;
 }
 
 .users::-webkit-scrollbar {
@@ -123,4 +124,29 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.users__logout {
+    background-color: transparent;
+    border: none;
+    color: tomato;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    cursor: pointer;
+    transition: 200ms;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+}
+
+.users__logout svg {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.users__logout:hover {
+    color: #fff;
+    background-color: tomato;
 }

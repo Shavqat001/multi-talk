@@ -3,7 +3,6 @@ const crypto = require('crypto');
 const mysql = require('mysql2');
 const router = express.Router();
 
-// Подключение к базе данных
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -11,12 +10,10 @@ const db = mysql.createConnection({
     database: 'chat_bot'
 });
 
-// Функция для хэширования пароля
 const hashPassword = (password) => {
     return crypto.createHash('sha256').update(password).digest('hex');
 };
 
-// Регистрация оператора
 router.post('/register', (req, res) => {
     const { username, password, email } = req.body;
 
@@ -25,13 +22,11 @@ router.post('/register', (req, res) => {
         if (results.length > 0) {
             return res.send('Пользователь с таким именем или email уже существует.');
         } else {
-            // Хэширование пароля и сохранение пользователя
             const hashedPassword = hashPassword(password);
             db.query('INSERT INTO operators (username, password, email) VALUES (?, ?, ?)', 
                      [username, hashedPassword, email], (err, result) => {
                 if (err) throw err;
-                // Успешная регистрация
-                res.redirect('/index'); // Перенаправление на страницу чат-бота
+                res.send('success'); 
             });
         }
     });
@@ -43,18 +38,16 @@ router.post('/login', (req, res) => {
 
     db.query('SELECT * FROM operators WHERE username = ?', [username], (err, results) => {
         if (results.length === 0) {
-            return res.send('Неверное имя пользователя.');
+            return res.send('Неверное имя пользователя или пароль.');
         } else {
             const user = results[0];
-            // Проверка пароля
             if (hashPassword(password) === user.password) {
-                // Успешный логин
-                res.redirect('/index'); // Перенаправление на страницу чат-бота
+                res.send('success'); 
             } else {
-                res.send('Неверный пароль.');
+                res.send('Неверное имя пользователя или пароль.');
             }
         }
     });
 });
 
-module.exports = router; // Экспортируем маршруты для использования в server.js
+module.exports = router;

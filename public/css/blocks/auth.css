@@ -1,0 +1,79 @@
+.authorization {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to top left, gold, tomato);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+}
+
+.login,
+.register {
+    background-color: rgba(51, 51, 51, 0.897);
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 40px -10px #ffffff;
+}
+
+.login__form,
+.register__form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login__title,
+.register__title {
+    text-align: center;
+    letter-spacing: 4px;
+    font-weight: 900;
+    font-size: 30px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.login__name-field,
+.login__password-field,
+.register__name-field,
+.register__password-field,
+.register__email-field {
+    padding: 10px;
+    padding-right: 0;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px -5px #333;
+    outline: none;
+    background: #333;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+.login__button,
+.register__button {
+    border: none;
+    padding: 10px 0;
+    font-size: 18px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px -10px #333;
+    background: dodgerblue;
+    color: #fff;
+}
+
+.login__existing-user,
+.register__existing-user {
+    font-size: 18px;
+    color: #fff;
+}
+
+.login__existing-user a,
+.register__existing-user a {
+    color: dodgerblue;
+}
+
+.login__error,
+.register__error {
+    color: tomato;
+    margin-bottom: 10px;
+}

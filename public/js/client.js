@@ -10,6 +10,30 @@ let selectMessage = document.querySelector('.message__select_chat');
 let messagesList = document.querySelector('.messages__list');
 let messagesWrapperList = document.querySelector('.message__wrapper_list');
 let searchBar = document.querySelector('.users__search');
+let logoutButton = document.querySelector('.users__logout');
+
+logoutButton.addEventListener('click', async () => {
+    try {
+        console.log('Logout button clicked');
+
+        const response = await fetch('http://localhost:8082/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+            console.log('Logout successful, clearing session and redirecting'); // Отладочное сообщение
+
+            localStorage.clear();
+
+            window.location.href = '/';
+        } else {
+            console.error('Logout failed with status:', response.status);
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+});
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -21,7 +45,7 @@ socket.onmessage = (event) => {
             phoneNumber: data.phoneNumber,
             name: data.name || 'Unknown User',
             platform: data.platform,
-            profilePic: data.profilePic || './img/avatar.jpg',
+            profilePic: data.profilePic || './public/img/avatar.jpg',
             messages: []
         };
         users.push(user);
@@ -38,13 +62,16 @@ socket.onmessage = (event) => {
                 <p class="users__text">${data.message}</p>
                 <span class="new-message-indicator"></span>
             </div>
-            <img class="users__platform-icon" src="./assets/${data.platform}.ico" alt="${data.platform}" width="25">
+            <img class="users__platform-icon" src="./public/assets/${data.platform}.ico" alt="${data.platform}" width="25">
         `;
         userElement.addEventListener('click', () => setActiveUser(data.phoneNumber));
         usersList.appendChild(userElement);
     }
 
-    user.messages.push({ text: data.message, from: data.from || data.platform });
+    user.messages.push({
+        text: data.message,
+        from: data.from || data.platform
+    });
 
     if (activeUser === user.phoneNumber) {
         const messageClass = data.from === 'operator' ? 'messages__item_bot' :
@@ -199,31 +226,42 @@ function loadClients() {
                     users.push(user);
                 }
 
-                let userElement = document.getElementById(client.phone_number);
-                if (!userElement) {
-                    userElement = document.createElement('li');
-                    userElement.classList.add('users__item');
-                    userElement.id = client.phone_number;
-                    userElement.innerHTML = `
-                        <div class="users__picture">
-                            <img src="${client.sender_profile_pic || './img/avatar.jpg'}" alt="${client.sender_name || 'Unknown User'}" width="50">
-                        </div>
-                        <div class="users__info">
-                            <h3 class="users__name">${client.sender_name || 'Unknown User'}</h3>
-                            <p class="users__text"></p>
-                            <span class="new-message-indicator"></span>
-                        </div>
-                        <img class="users__platform-icon" src="./assets/${client.platform}.ico" alt="${client.platform}" width="25">
-                    `;
+                // Получить последнее сообщение для каждого клиента
+                fetch(`http://localhost:8082/api/last_message/${client.phone_number}`)
+                    .then(response => response.json())
+                    .then(lastMessage => {
+                        let userElement = document.getElementById(client.phone_number);
+                        if (!userElement) {
+                            userElement = document.createElement('li');
+                            userElement.classList.add('users__item');
+                            userElement.id = client.phone_number;
+                            userElement.innerHTML = `
+                                <div class="users__picture">
+                                    <img src="${client.sender_profile_pic || './img/avatar.jpg'}" alt="${client.sender_name || 'Unknown User'}" width="50">
+                                </div>
+                                <div class="users__info">
+                                    <h3 class="users__name">${client.sender_name || 'Unknown User'}</h3>
+                                    <p class="users__text">${lastMessage.message_text || ''}</p>
+                                    <span class="new-message-indicator"></span>
+                                </div>
+                                <img class="users__platform-icon" src="./public/assets/${client.platform}.ico" alt="${client.platform}" width="25">
+                            `;
 
-                    userElement.addEventListener('click', () => setActiveUser(client.phone_number));
-                    usersList.appendChild(userElement);
-                } else {
-                    userElement.querySelector('.users__picture img').src = client.sender_profile_pic || './img/avatar.jpg';
-                }
+                            userElement.addEventListener('click', () => setActiveUser(client.phone_number));
+                            usersList.appendChild(userElement);
+                        } else {
+                            userElement.querySelector('.users__picture img').src = client.sender_profile_pic || './img/avatar.jpg';
+                            userElement.querySelector('.users__text').textContent = lastMessage.message_text || '';
+                        }
+                    })
+                    .catch(err => console.error('Error loading last message:', err));
             });
         })
         .catch(err => console.error('Error loading clients:', err));
 }
 
 window.addEventListener('DOMContentLoaded', loadClients);
+
+messagesWrapperList.addEventListener('click', () => {
+    messageInput.focus();
+});
