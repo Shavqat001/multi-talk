@@ -45,7 +45,7 @@ socket.onmessage = (event) => {
             phoneNumber: data.phoneNumber,
             name: data.name || 'Unknown User',
             platform: data.platform,
-            profilePic: data.profilePic || './public/img/avatar.jpg',
+            profilePic: data.profilePic || '/img/avatar.jpg',
             messages: []
         };
         users.push(user);
@@ -62,7 +62,7 @@ socket.onmessage = (event) => {
                 <p class="users__text">${data.message}</p>
                 <span class="new-message-indicator"></span>
             </div>
-            <img class="users__platform-icon" src="./public/assets/${data.platform}.ico" alt="${data.platform}" width="25">
+            <img class="users__platform-icon" src="/assets/${data.platform}.ico" alt="${data.platform}" width="25">
         `;
         userElement.addEventListener('click', () => setActiveUser(data.phoneNumber));
         usersList.appendChild(userElement);
@@ -220,13 +220,12 @@ function loadClients() {
                         phoneNumber: client.phone_number,
                         name: client.sender_name || 'Unknown User',
                         platform: client.platform,
-                        profilePic: client.sender_profile_pic || './img/avatar.jpg',
+                        profilePic: client.sender_profile_pic || '/img/avatar.jpg',
                         messages: []
                     };
                     users.push(user);
                 }
 
-                // Получить последнее сообщение для каждого клиента
                 fetch(`http://localhost:8082/api/last_message/${client.phone_number}`)
                     .then(response => response.json())
                     .then(lastMessage => {
@@ -237,14 +236,14 @@ function loadClients() {
                             userElement.id = client.phone_number;
                             userElement.innerHTML = `
                                 <div class="users__picture">
-                                    <img src="${client.sender_profile_pic || './img/avatar.jpg'}" alt="${client.sender_name || 'Unknown User'}" width="50">
+                                    <img src="${client.sender_profile_pic || '/img/avatar.jpg'}" alt="${client.sender_name || 'Unknown User'}" width="50">
                                 </div>
                                 <div class="users__info">
                                     <h3 class="users__name">${client.sender_name || 'Unknown User'}</h3>
                                     <p class="users__text">${lastMessage.message_text || ''}</p>
                                     <span class="new-message-indicator"></span>
                                 </div>
-                                <img class="users__platform-icon" src="./public/assets/${client.platform}.ico" alt="${client.platform}" width="25">
+                                <img class="users__platform-icon" src="/assets/${client.platform}.ico" alt="${client.platform}" width="25">
                             `;
 
                             userElement.addEventListener('click', () => setActiveUser(client.phone_number));

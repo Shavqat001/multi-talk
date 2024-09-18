@@ -17,7 +17,6 @@ const hashPassword = (password) => {
 router.post('/register', (req, res) => {
     const { username, password, email } = req.body;
 
-    // Проверка наличия пользователя
     db.query('SELECT * FROM operators WHERE email = ? OR username = ?', [email, username], (err, results) => {
         if (results.length > 0) {
             return res.send('Пользователь с таким именем или email уже существует.');
@@ -32,7 +31,6 @@ router.post('/register', (req, res) => {
     });
 });
 
-// Логин оператора
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
 

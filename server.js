@@ -13,7 +13,6 @@ const app = express();
 const port = 8082;
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
@@ -28,8 +27,37 @@ app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'authorization.html'));
 });
 
+app.get('/auth', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'authorization.html'));
+});
+
 app.get('/index', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'index.html'));
+});
+
+app.get('/api/last_message/:phoneNumber', (req, res) => {
+    const phoneNumber = req.params.phoneNumber;
+    const query = 'SELECT * FROM messages WHERE phone_number = ? ORDER BY timestamp DESC LIMIT 1';
+
+    connection.query(query, [phoneNumber], (err, results) => {
+        if (err) {
+            console.error('Error fetching last message:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            res.json(results[0] || {});
+        }
+    });
+});
+
+app.post('/logout', (req, res) => {
+    try {
+        console.log('Logout route called');
+
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.status(500).json({ error: 'Internal Server Error during logout' });
+    }
 });
 
 const connection = mysql.createConnection({
