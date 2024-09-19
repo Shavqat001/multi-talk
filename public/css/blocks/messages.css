@@ -142,6 +142,37 @@
     overflow: auto;
 }
 
+.messages__smile-icons {
+    width: 20px;
+    max-width: 20px;
+    height: 20px;
+    border-radius: 50px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: 300ms;
+    display: flex;
+    overflow-x: scroll;
+    background-color: transparent;
+    padding: 5px 0;
+    align-items: center;
+}
+
+.messages__smile-icons::-webkit-scrollbar {
+    display: none;
+}
+
+.messages__smile-icons svg {
+    max-width: 20px;
+    min-width: 20px;
+    margin-right: 5px;
+}
+
+.messages__smile-icons:hover {
+    width: 100px;
+    max-width: 100px;
+    padding: 0 5px;
+}
+
 .messages__send_button {
     width: 20px;
     height: 20px;
@@ -169,4 +200,19 @@
 
 .new-message-indicator--visible {
     display: block;
+}
+
+.messages__black-layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    right: -100%;
+    top: 0;
+    background-color: #000000c7;
+    transition: 500ms;
+    transition-timing-function: ease-in-out;
+}
+
+.messages__black-layer--opened {
+    right: 0;
 }
