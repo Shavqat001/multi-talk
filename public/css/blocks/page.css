@@ -7,14 +7,58 @@
     display: flex;
 }
 
+.page__settings {
+    width: 290px;
+    position: absolute;
+    background-color: var(--dark-blue);
+    left: -100vw;
+    height: 100vh;
+    z-index: 10;
+    transition: 600ms;
+    padding: 25px;
+    transition-timing-function: ease-in-out;
+    box-shadow: 0px 0px 30px -10px #fff;
+}
+
+.page__settings--light {
+    background-color: #fff;
+}
+
+.page__settings--opened {
+    left: 0;
+}
+
+.page__settings--close-button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    background-color: transparent;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+}
+
+.page__settings--close-button::after {
+    content: '';
+    background-color: tomato;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%);
+    display: block;
+}
+
 .page__theme {
     outline: none;
     width: 40px;
     height: 20px;
     border-radius: 50px;
     background-color: #fff;
-    margin-right: 10px;
-    margin-left: 15px;
     appearance: none;
     position: relative;
 }
@@ -24,12 +68,12 @@
     width: 20px;
     height: 20px;
     position: absolute;
-    background-color: yellowgreen;
+    background-color: var(--light-green);
     border: 1px solid #fff;
     border-radius: 50%;
     transition: 200ms;
     left: 0;
-    
+
 }
 
 .page__theme--light {
@@ -38,5 +82,5 @@
 
 .page__theme--light::after {
     border: 1px solid #333;
-    left: 18px;
+    left: 20px;
 }
