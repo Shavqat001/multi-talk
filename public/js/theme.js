@@ -10,7 +10,7 @@ let smileContent = document.querySelector('.messages__smile-icons');
 
 let smiles = smileContent.children;
 
-let smilesArr = ['😂', '👍', '😡'];
+let smilesArr = ['😂', '👍', '😡', '👌'];
 
 for (let i = 0; i < smiles.length; i++) {
     smiles[i].addEventListener('click', () => {
@@ -51,6 +51,7 @@ themeToggle.addEventListener('click', () => {
         themeToggle.classList.remove('page__theme--light');
         pageSettings.classList.remove('page__settings--light');
         pageMenu.classList.remove('users__settings-menu--light');
+        document.querySelectorAll('.users__name').forEach(el => el.classList.remove('users__name--light'))
         isLight = false;
         JSON.stringify(localStorage.setItem('theme', isLight))
     } else {
@@ -63,6 +64,7 @@ themeToggle.addEventListener('click', () => {
         themeToggle.classList.add('page__theme--light');
         pageSettings.classList.add('page__settings--light');
         pageMenu.classList.add('users__settings-menu--light');
+        document.querySelectorAll('.users__name').forEach(el => el.classList.add('users__name--light'))
         isLight = true;
         JSON.stringify(localStorage.setItem('theme', isLight))
     }
@@ -80,6 +82,7 @@ window.addEventListener('load', () => {
             themeToggle.classList.add('page__theme--light');
             pageMenu.classList.add('users__settings-menu--light');
             pageSettings.classList.add('page__settings--light');
+            document.querySelectorAll('.users__name').forEach(el => el.classList.add('users__name--light'))
         } else {
             usersAside.classList.remove('users__light--theme');
             document.querySelectorAll('.users__item').forEach(el => el.classList.remove('users__item--light'));
@@ -90,6 +93,7 @@ window.addEventListener('load', () => {
             pageMenu.classList.remove('users__settings-menu--light');
             themeToggle.classList.remove('page__theme--light');
             pageSettings.classList.remove('page__settings--light');
+            document.querySelectorAll('.users__name').forEach(el => el.classList.remove('users__name--light'))
         }
     }, 100);
 });

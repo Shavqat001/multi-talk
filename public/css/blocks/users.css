@@ -147,6 +147,11 @@
 .users__name {
     font-size: 16px;
     margin-bottom: 5px;
+    color: #fff;
+}
+
+.users__name--light {
+    color: #222;
 }
 
 .users__text {
