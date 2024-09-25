@@ -110,9 +110,7 @@
     background-color: var(--dark-blue);
     color: #fff;
     padding: 14px;
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - 290px);
+    min-width: calc(100% - 290px);
 }
 
 .messages__form--light,
@@ -168,8 +166,8 @@
 }
 
 .messages__smile-icons:hover {
-    width: 100px;
-    max-width: 100px;
+    width: 130px;
+    max-width: 130px;
     padding: 0 5px;
 }
 
@@ -204,13 +202,14 @@
 
 .messages__black-layer {
     width: 100%;
-    height: 100%;
+    height: 545px;
     position: absolute;
     right: -100%;
     top: 0;
     background-color: #000000c7;
     transition: 500ms;
     transition-timing-function: ease-in-out;
+    z-index: 9;
 }
 
 .messages__black-layer--opened {

@@ -10,7 +10,7 @@ let smileContent = document.querySelector('.messages__smile-icons');
 
 let smiles = smileContent.children;
 
-let smilesArr = ['😂', '👍', '😡', '👌'];
+let smilesArr = ['😂', '👍', '😡', '👌', '👋🏻'];
 
 for (let i = 0; i < smiles.length; i++) {
     smiles[i].addEventListener('click', () => {
@@ -34,11 +34,12 @@ closeButton.addEventListener('click', () => {
 });
 
 window.addEventListener('keydown', (e) => {
-    if (e.key = 'Esc') {
+    if (e.key === 'Escape') {
         blackLayer.classList.remove('messages__black-layer--opened');
         pageSettings.classList.remove('page__settings--opened');
     }
-})
+});
+
 
 themeToggle.addEventListener('click', () => {
     if (isLight) {
