@@ -10,45 +10,35 @@
 </head>
 
 <body>
-    <section class="authorization">
-        <div class="login">
-            <h2 class="login__title">Login</h2>
+    <section class="auth">
+        <div class="auth__section auth__section--login">
+            <h2 class="auth__title">Login</h2>
 
-            <form class="login__form" autocapitalize="" id="login-form" onsubmit="login(event)">
-                <input class="login__name-field" type="text" id="username" name="username" placeholder="Username"
-                    minlength="5" required>
-                <input class="login__password-field" type="password" id="password" placeholder="Password"
-                    name="password" required minlength="8">
-                <button class="login__button" type="submit">Login</button>
-                <p class="login__error" id="login-error" class="error-message">
-
-                </p>
+            <form class="auth__form auth__form--login" id="login-form" onsubmit="login(event)" autocomplete="">
+                <input class="auth__input auth__input--username" type="text" id="username" name="username" placeholder="Username" minlength="5" required>
+                <input class="auth__input auth__input--password" type="password" id="password" name="password" placeholder="Password" required minlength="8">
+                <button class="auth__button auth__button--submit" type="submit">Login</button>
+                <p class="auth__error" id="login-error"></p>
             </form>
 
-            <p class="login__existing-user">Don't have an account?
+            <p class="auth__toggle">
+                Don't have an account?
                 <a href="#" onclick="toggleForms()">Register here</a>
             </p>
         </div>
 
-        <div class="register" style="display: none;">
-            <h2 class="register__title">Register</h2>
+        <div class="auth__section auth__section--register" style="display: none;">
+            <h2 class="auth__title">Register</h2>
 
-            <form id="register__form" class="register__form" onsubmit="register(event)">
-                <input class="register__name-field" type="text" id="reg-username" name="username" placeholder="Username"
-                    required minlength="5">
-                <input class="register__email-field" type="email" id="reg-email" name="email" placeholder="Email"
-                    required>
-                <input class="register__password-field" type="password" id="reg-password" name="password"
-                    placeholder="Password" required minlength="8">
-                <button class="register__button" type="submit">
-                    Register
-                </button>
-                <p class="register__error" id="register-error" class="error-message">
-
-                </p>
+            <form class="auth__form auth__form--register" id="register-form" onsubmit="register(event)" autocomplete="">
+                <input class="auth__input auth__input--username" type="text" id="reg-username" name="username" placeholder="Username" required minlength="5">
+                <input class="auth__input auth__input--email" type="email" id="reg-email" name="email" placeholder="Email" required>
+                <input class="auth__input auth__input--password" type="password" id="reg-password" name="password" placeholder="Password" required minlength="8">
+                <button class="auth__button auth__button--submit" type="submit">Register</button>
+                <p class="auth__error" id="register-error"></p>
             </form>
 
-            <p class="register__existing-user">
+            <p class="auth__toggle">
                 Already have an account?
                 <a href="#" onclick="toggleForms()">Login here</a>
             </p>
@@ -57,15 +47,15 @@
 
     <script>
         function toggleForms() {
-            const loginForm = document.querySelector('.login');
-            const registerForm = document.querySelector('.register');
+            const loginSection = document.querySelector('.auth__section--login');
+            const registerSection = document.querySelector('.auth__section--register');
 
-            if (loginForm.style.display === 'none') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
+            if (loginSection.style.display === 'none') {
+                loginSection.style.display = 'block';
+                registerSection.style.display = 'none';
             } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'block';
             }
         }
 
